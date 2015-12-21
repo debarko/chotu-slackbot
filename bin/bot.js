@@ -9,6 +9,7 @@
  */
 
 var NorrisBot = require('../lib/norrisbot');
+var ElizaBot = require('../lib/elizabot');
 
 /**
  * Environment variables used to configure the bot:
@@ -19,13 +20,12 @@ var NorrisBot = require('../lib/norrisbot');
  *  BOT_NAME: the username you want to give to the bot within your organisation.
  */
 var token = process.env.BOT_API_KEY || require('../token');
-var dbPath = process.env.BOT_DB_PATH;
-var name = process.env.BOT_NAME;
+var name = "Chotu Ram";
 
-var norrisbot = new NorrisBot({
+var chotu = new NorrisBot({
     token: token,
-    dbPath: dbPath,
-    name: name
+    name: name,
+    eliza: ElizaBot
 });
 
-norrisbot.run();
+chotu.run();
