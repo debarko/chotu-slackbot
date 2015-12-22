@@ -12,7 +12,10 @@ var Bot = require('slackbots'),
     },
 	token = process.env.BOT_API_KEY || 'xoxb-17093932528-SCnCcJyR7kiA5sfytZ3Llqyj',
 	name = 'Chotu Ram',
-	reply, elizaInitials, elizaFinals, elizaQuits,
+    channelMap = {},
+    channelMsgHistory = {},
+	reply, elizaInitials, elizaFinals, elizaQuits, msgLen,
+    users, botUserId,
 	elizaPres = [], elizaPosts, elizaSynons, elizaKeywords = [], elizaPostTransforms;
 
 // create a bot 
@@ -24,6 +27,12 @@ var bot = new Bot({
 console.log("Booting up Chotu...");
  
 bot.on('start', function() {
+    users = bot.getUsers();
+    for (var i = 0; i < users._value.members.length; i++) {
+        if (users._value.members[i].name === 'chotu') {
+            botUserId = users._value.members[i].id;
+        }
+    }
     // more information about additional params https://api.slack.com/methods/chat.postMessage 
     
     // define channel, where bot exist. You can adjust it there https://my.slack.com/services  
@@ -46,12 +55,33 @@ bot.on('message', function(data) {
 	// team: 'T024PSVLF' }
 
 	// initial = elizaInstance.getInitial();
+    // if (data.channel != 'C0H5GTPB5' ) {
+    //     return;
+    // }
+    if (isChatMessage(data) && !isFromBot(data)) {
+        channelMap[data.channel] = channelMap[data.channel] || {};
+        channelMap[data.channel][data.user] =
+            channelMap[data.channel][data.user] || [];
+        channelMsgHistory[data.channel] =
+            channelMsgHistory[data.channel] || [];
 
-    if ((isChatMessage(data) || isChannelConversation(data))
-    	&& !isFromBot(data)) {
-    	if (isMentioningMe(data) && isChannelConversation(data)) {
-    		// reply = elizaInstance.transform(data.text);
-    		// bot.postMessageToChannel(data.channel, reply, params);
+    	if (isChannelConversation(data)) {
+            if (isMentioningMe(data)) {
+                reply = elizaInstance.transform(data.text);
+                bot.postMessage(data.channel, reply, params);
+                channelMap[data.channel][data.user].push(data.text);
+                channelMsgHistory[data.channel].push([data.user, data.text]);
+            } else {
+                console.log(channelMsgHistory);
+                msgLen = (channelMsgHistory[data.channel] < 10) ? channelMsgHistory[data.channel]-1 : 10;
+                for (var i = 0; i <= msgLen; i++) {
+                    if (channelMsgHistory[data.channel][i] &&
+                        channelMsgHistory[data.channel][i][0] === data.user) {
+                        reply = elizaInstance.transform(data.text);
+                        bot.postMessage(data.channel, reply, params);
+                    }
+                }
+            }
     	} else if (isChatMessage(data)) {
 			reply = elizaInstance.transform(data.text);
 			bot.postMessage(data.channel, reply, params);
@@ -71,6 +101,7 @@ function isChannelConversation (message) {
 
 function isMentioningMe (message) {
     return message.text.toLowerCase().indexOf('chotu') > -1 ||
+        message.text.indexOf(botUserId) > -1 ||
         message.text.toLowerCase().indexOf(name) > -1;
 };
 
