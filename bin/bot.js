@@ -5,6 +5,7 @@
 var Bot = require('slackbots'),
 	elizaBot = require('../lib/elizabot'),
 	elizaData = require('../lib/elizadata'),
+    token = require('../token'),
 	elizaInstance = new elizaBot(false, elizaData),
 	params = {
         icon_url: 'http://i.picresize.com/images/2015/12/21/m0Puj.jpg'
@@ -16,7 +17,7 @@ var Bot = require('slackbots'),
 
 // create a bot 
 var bot = new Bot({
-    token: 'xoxb-17093932528-SCnCcJyR7kiA5sfytZ3Llqyj', // Add a bot https://my.slack.com/services/new/bot and put the token  
+    token: token, // Add a bot https://my.slack.com/services/new/bot and put the token  
     name: name
 });
 
@@ -29,7 +30,7 @@ bot.on('start', function() {
     //bot.postMessageToChannel('general', 'meow!', params);
     
     // define existing username instead of 'user_name' 
-    bot.postMessageToUser('debarko', 'meow!', params); 
+    bot.postMessageToUser('debarko', 'I am up.', params); 
     
     // define private group instead of 'private_group', where bot exist 
     //bot.postMessageToGroup('private_group', 'meow!', params); 
